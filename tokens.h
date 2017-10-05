@@ -8,3 +8,5 @@ strarr* get_tokens(const char* text);
 int isoperator(int i);
 
 int isarg(int i);
+
+#endif
