@@ -1,0 +1,8 @@
+# object files
+*.o
+
+# vim swap files
+*.swp
+
+# tests directory
+tests/
