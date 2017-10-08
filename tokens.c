@@ -2,6 +2,9 @@
 #include "strarr.h"
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+#include "tokens.h"
+
 
 // Read the given string starting at i. Only includes characters
 //  that are included in the current token.
@@ -59,12 +62,6 @@ get_tokens(const char* text)
       continue; 
     }
   }
-  // print every token in tokens
-  for (int i = 0; i < tokens -> size; ++i) {
-   printf("%s\n", strarr_get(tokens, i)); 
-  }
-  // tokens is no longer needed, so free it
-  free_strarr(tokens);
   return tokens;
 }
 
