@@ -6,49 +6,35 @@
 #include <sys/wait.h>
 
 #include "tokens.h"
-// add strarr as an argument to this function
 void
-execute(char* cmd)
+execute(char* cmd, strarr* arr)
 {
     int cpid;
 
     if ((cpid = fork())) {
-        // parent process
-        printf("Parent pid: %d\n", getpid());
-        printf("Parent knows child pid: %d\n", cpid);
+        char* args[arr->size];
 
-        // Child may still be running until we wait.
+        // add individual tokens to an args array.
+        for (int i = 0; i < arr->size; i++) {
+          args[i] = strarr_get(arr, i);
+        }  
 
         int status;
         waitpid(cpid, &status, 0);
 
-        printf("== executed program complete ==\n");
-
-        printf("child returned with wait code %d\n", status);
         if (WIFEXITED(status)) {
-            printf("child exited with exit code (or main returned) %d\n", WEXITSTATUS(status));
+          // TODO: error code reporting
         }
     }
     else {
         // child process
-        printf("Child pid: %d\n", getpid());
-        printf("Child knows parent pid: %d\n", getppid());
+        char* args[arr->size];
 
-        for (int ii = 0; ii < strlen(cmd); ++ii) {
-            if (cmd[ii] == ' ') {
-                cmd[ii] = 0;
-                break;
-            }
+        for (int i = 0; i < arr->size; i++) {
+          args[i] = strarr_get(arr, i);
         }
 
-        // The argv array for the child.
-        // Terminated by a null pointer.
-        char* args[] = {cmd, "one", 0};
-
-        printf("== executed program's output: ==\n");
-
-        execvp(cmd, args);
-        printf("Can't get here, exec only returns on error.");
+        execvp(args[0], args);
     }
 }
 
@@ -59,15 +45,24 @@ main(int argc, char* argv[])
     char cmd[256];
 
     if (argc == 1) {
+      while(1) {
         printf("nush$ ");
         fflush(stdout);
-        fgets(cmd, 256, stdin);
+
+        char* rv = fgets(cmd, 256, stdin);
+        if (!rv) {
+          break;
+        }
+        strarr* arr = get_tokens(cmd);
+        execute(cmd, arr);
+      }
     }
     else {
         memcpy(cmd, "echo", 5);
     }
 
-    execute(cmd);
+//    strarr* arr = get_tokens(cmd);
+//    execute(cmd, arr);
 
     return 0;
 }
