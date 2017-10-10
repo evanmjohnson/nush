@@ -89,20 +89,3 @@ isarg(int i)
   }
   return 0;
 }
-
-/*
-// Run the tokenizer.
-int
-n(int _argc, char* _argv[])
-{
-  char line[100];
-  while(1) {
-    char* rv = fgets(line, 96, stdin);
-    if (!rv) {
-      break;
-    }
-    // print out the tokens (individual elements in strarr)
-    get_tokens(rv);
-  }   
-}
-*/

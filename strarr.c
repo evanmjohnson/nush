@@ -23,7 +23,8 @@ create_strarr()
 void
 free_strarr(strarr* str) 
 {
-  for (int i = 0; i < str->size; ++i) {
+  int i = 0;
+  for (i = 0; i < str->size; ++i) {
     if (str->data[i] != 0) {
       free(str->data[i]); 
     }
@@ -38,7 +39,6 @@ strarr_get(strarr* str, int i)
 {
   return str->data[i];
 }
-
 // Add the given item to the given strarr at index i.
 void
 strarr_put(strarr* str, int i, char* item)
