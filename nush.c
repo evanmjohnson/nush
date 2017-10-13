@@ -199,7 +199,7 @@ exec_and(strarr* arr, int index)
   if ((cpid = fork())) {
     int status;
     
-    if (waitpid(cpid, &status, 0) > 0 &&
+    if (waitpid(cpid, &status, 0) > 0 || 
         strcmp(strarr_get(left, 0), "false") != 0) {
       int gpid;
       if ((gpid = fork())) {
@@ -235,6 +235,59 @@ exec_and(strarr* arr, int index)
   }
 }
 
+void
+exec_or(strarr* arr, int index) 
+{
+  strarr* right = create_strarr();
+  strarr* left = create_strarr();
+  
+  int i;
+  for (i = 0; i < index; i++) {
+    strarr_add(left, strarr_get(arr, i));
+  }
+  for (i = index + 1; i < arr->size; i++) {
+    strarr_add(right, strarr_get(arr, i));
+  }
+
+  int cpid;
+  if ((cpid = fork())) {
+    int status;
+
+    if (waitpid(cpid, &status, 0) < 0 || 
+        strcmp(strarr_get(left, 0), "true") != 0) {
+
+      int gpid;
+      if ((gpid = fork())) {
+        int gstatus;
+        waitpid(gpid, &gstatus, 0);
+        free_strarr(left);
+        free_strarr(right);
+      }
+      else {
+        char* args[right->size];
+
+        for (i = 0; i < right->size; i++) {
+          args[i] = strarr_get(right, i);
+        }
+        args[right->size] = NULL;
+        execvp(args[0], args);
+      }       
+    }    
+    else {
+      free_strarr(right);
+      free_strarr(left);
+    }    
+  }
+  else {
+    char* args[left->size];
+    
+    for (i = 0; i < left->size; i++) {
+      args[i] = strarr_get(left, i);
+    }
+    args[left->size] = NULL;
+    execvp(args[0], args);
+  }
+}
 void
 semicolon(strarr* arr, int semicolon_index) 
 {
@@ -301,7 +354,7 @@ main(int argc, char* argv[])
           break;
         }
         else if (strcmp(strarr_get(arr, i), "||") == 0) {
- //         exec_or(arr, i);
+          exec_or(arr, i);
           break;
         }
         else if (i == arr->size - 1) {
